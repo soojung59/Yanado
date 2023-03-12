@@ -1,0 +1,22 @@
+.container {
+	margin-top: 3em;
+	position: static;
+	font-size: 18px;
+}
+
+.title {
+	border-left: 2px solid #000;
+	border-right: 2px solid #000;
+	border-bottom: 2px solid #000;
+	height: 33px;
+	width: 60%;
+}
+
+.cont {
+	border-left: 2px solid #000;
+	border-right: 2px solid #000;
+	border-bottom: 2px solid #000;
+	height: 20em;
+	width: 60%;
+	margin-top: 1.5em;
+}

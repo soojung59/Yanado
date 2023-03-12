@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.yanado.model.dao.MemInfoMapper">
+
+	<select id = "listMem" resultType="com.bit.yanado.model.dto.MemInfo" parameterType="com.bit.yanado.model.dto.MemInfo">
+		select * from MemInfo
+	</select>
+
+	<insert id="insertMem">
+	insert INTO MemInfo(id, pw, name, tel, email, joinDate, emailAuthNum , lastLoginDate, phAuthNum, isPay)
+	VALUES (#{id}, #{pw}, #{name}, #{tel}, #{email},#{joinDate}, #{emailAuthNum}, #{lastLoginDate} , #{phAuthNum}, #{isPay})
+	</insert>
+	
+	<select id = "loginMem" resultType="com.bit.yanado.model.dto.MemInfo" >
+		select id, name, lastLoginDate, isOut
+		from MemInfo 
+		where id = #{id, jdbcType = VARCHAR } and pw = #{pw, jdbcType = VARCHAR }
+	</select>
+	
+	
+	<insert id = "bookmark" parameterType="java.util.Map" >
+		insert into BookMark(
+		bookmarkSeq, id, uniqueNo, subTimestamp, subtitle)
+		VALUES (BOOK_SEQ.nextval, #{id},#{uniqueNo},#{subTimestamp},#{subtitle})
+	</insert>
+	
+	
+	<delete id ="delBookMark" parameterType="java.util.Map" >
+		delete from bookMark
+		where id =  #{id} and uniqueNo = #{uniqueNo} and subTimestamp = #{subTimestamp}
+	</delete>
+	
+	<select id="checkBookMark"  parameterType="java.util.Map" resultType="int" >
+	<![CDATA[
+		select count (subTimestamp)
+		from bookMark
+		where id = #{id} and subTimestamp = #{subTimestamp}
+		]]>
+	</select>
+	
+	<select id = "checkSubtimeStamp"  parameterType="hashmap" resultType="com.bit.yanado.model.dto.BookMark" >
+		select  subTimestamp from bookMark
+		where id = 'test' and uniqueNo = #{uniqueNo}
+	</select>
+	
+	<select id ="selectBookMark"  resultType="map" >
+		select title, link ,  bookMark.subTimestamp ,bookMark.subtitle,videoInfo.uniqueNo 
+		from videoInfo,bookMark
+		where videoinfo.uniqueNo = bookmark.uniqueNo
+	</select>
+	
+	<update id="upadateMem">
+		update MemInfo set
+		pw = #{pw},
+		name = #{name},
+		tel = #{tel},
+		email = #{email}
+	where
+		id = #{id}	
+	</update>
+	
+	
+	<delete id="deleteMem">
+		delete from MemInfo
+		where
+		id = #{id}
+	</delete>
+	
+	
+	<select id="selectMem">
+		select * from MemInfo
+		where
+		id = #{id}
+	</select>
+	
+</mapper>

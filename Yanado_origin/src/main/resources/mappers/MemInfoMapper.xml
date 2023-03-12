@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.yanado.model.dao.MemInfoMapper">
+
+	<select id="listMem"
+		resultType="com.bit.yanado.model.dto.MemInfo"
+		parameterType="com.bit.yanado.model.dto.MemInfo">
+		select * from MemInfo
+	</select>
+
+	<insert id="insertMem">
+		insert INTO MemInfo(id, pw, name, tel, email,
+		joinDate, emailAuthNum ,
+		lastLoginDate, phAuthNum, isPay)
+		VALUES (#{id},
+		#{pw}, #{name}, '123', #{email},sysDate, #{emailAuthNum},
+		sysDate ,
+		'123' ,'1')
+	</insert>
+
+	<select id="loginMem"
+		resultType="com.bit.yanado.model.dto.MemInfo">
+		select id, name, email,
+		lastLoginDate, isOut
+		from MemInfo
+		where id =
+		#{id, jdbcType = VARCHAR } and pw = #{pw,jdbcType = VARCHAR}
+	</select>
+
+	<update id="loginData">
+		update meminfo 
+		SET lastlogindate = sysdate
+		where id = #{id, jdbcType = VARCHAR }
+	</update>
+
+	<update id="modifyMem">
+		UPDATE MemInfo set pw = #{pw},name = #{name},
+		lastLoginDate = SYSDATE
+		where id = #{id}
+	</update>
+
+	<update id="leavingMem">
+		UPDATE MemInfo set isout = '1'
+		where id = 	#{id, jdbcType = VARCHAR }and pw = #{pw,jdbcType = VARCHAR}
+	</update>
+
+	<select id="idCheck" resultType="int">
+		select count(*) from MemInfo
+		where id = #{id}
+	</select>
+
+	<select id="listQna" resultType="com.bit.yanado.model.dto.QNA">
+		<![CDATA[
+			select title, cont, id, isreply, reply, replyDate, replyAdmin, qnaSeq
+		from(select /*+ index_desc(qna qna_pk)*/
+		rownum as rn, title, cont, id, isreply, reply, replyDate, replyAdmin,qna.qnaseq
+		from qna 
+		where rownum <= #{pageNum} * #{amount}
+		 ]]>
+		<if test="keyword != null">
+			and title like '%'||#{keyword}||'%'
+		</if>
+		<![CDATA[
+		)
+		where rn > (#{pageNum} -1) * #{amount}
+		]]>
+	</select>
+
+	<select id="countQna" resultType="int">
+		select count(*)
+		from QNA
+		<if test="keyword != null">
+			where title like '%'||#{keyword}||'%'
+		</if>
+	</select>
+
+	<select id="myQna" resultType="com.bit.yanado.model.dto.QNA">
+		select /*+ index_desc(qna
+		qna_pk)*/ qnaSeq, title, writedate,
+		cont,reply,isreply,replydate,replyadmin
+		from qna
+		where id = #{id}
+	</select>
+
+	<insert id="writeQna">
+		insert into qna (qnaseq, id, title, writedate, cont)
+		VALUES (QNASEQ.nextval, #{id}, #{title}, sysdate , #{cont})
+	</insert>
+	
+	<update id="replyQna">
+		UPDATE qna	set reply = #{reply}, isreply = 'y', replydate = sysdate, replyadmin = #{id, jdbcType = VARCHAR }
+		where qnaSeq = #{qnaSeq}
+	</update>
+	
+
+	<select id="checkRecord" parameterType="java.util.Map"
+		resultType="int">
+	<![CDATA[
+		select count(*) 
+		from WatchingReco
+		where id = #{id} and uniqueNo = #{uniqueNo}
+		]]>
+	</select>
+
+	<insert id="videoRecord">
+		insert into WatchingReco
+		( historySeq, id, uniqueNo,
+		recentPo, iswatch,recentTime)
+		VALUES
+		(WATCHSEQ.nextval, #{id},
+		#{uniqueNo}, #{recentPo},'y' ,sysDate)
+	</insert>
+
+	<update id="updateRecord">
+		UPDATE WatchingReco
+		SET recentPo = #{recentPo} ,
+		recentTime = sysDate
+		where id = #{id}
+		and uniqueNo = #{uniqueNo}
+	</update>
+
+	<insert id="bookmark" parameterType="java.util.Map">
+		insert into
+		BookMark(
+		bookmarkSeq, id, uniqueNo, subTimestamp, subtitle)
+		VALUES
+		(BOOK_SEQ.nextval, #{id},#{uniqueNo},#{subTimestamp},#{subtitle})
+	</insert>
+
+
+	<delete id="delBookMark" parameterType="java.util.Map">
+		delete
+		from bookMark
+		where
+		id = #{id} and uniqueNo = #{uniqueNo} and
+		subTimestamp =
+		#{subTimestamp}
+	</delete>
+
+	<select id="checkBookMark" parameterType="java.util.Map"
+		resultType="int">
+	<![CDATA[
+		select count (subTimestamp)
+		from bookMark
+		where id = #{id} and subTimestamp = #{subTimestamp}
+		]]>
+	</select>
+
+	<select id="selectBookMark" resultType="map">
+		select
+		videoinfo.title,bookmark.subtimestamp,
+		bookmark.subtitle,videoinfo.link,bookmark.uniqueno
+		from bookMark,
+		VideoInfo
+		where id = #{id}
+		and videoinfo.uniqueno = bookmark.uniqueno
+	</select>
+	
+	<select id="getBookmark" resultType="com.bit.yanado.model.dto.BookMark">
+		select subTimestamp
+		from bookMark
+		where id= #{id}
+	</select>
+
+	<select id="selectwatchReco" resultType="map">
+		select
+		recentPo,title,poster,id,link,VideoInfo.uniqueNo
+		from VideoInfo,
+		WatchingReco,poster
+		where VideoInfo.uniqueNo = WatchingReco.uniqueNo
+		and poster.titleSeq = substr(VideoInfo.uniqueNo,1,7)
+		and id = #{id}
+
+	</select>
+
+	<select id="viewReco"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		select * from VideoInfo
+		where
+		uniqueNo = ${uniqueNo}
+	</select>
+
+	<select id="selectMem">
+		select * from MemInfo
+		where
+		id = #{id}
+	</select>
+
+	<select id="listReco" resultType="map">
+		select * from WatchingReco
+		where id = #{id}
+		and uniqueNo = #{uniqueNo}
+	</select>
+
+	<select id="playReco"
+		resultType="com.bit.yanado.model.dto.WatchingReco">
+		select recentPo
+		from WatchingReco
+		where id = #{id}
+		and
+		uniqueNo = #{uniqueNo}
+	</select>
+
+</mapper>

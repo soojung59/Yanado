@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.yanado.model.dao.VideoMapper">
+
+
+	<select id="selectVideoList"
+		resultType="com.bit.yanado.model.dto.VideoInfo"
+		parameterType="com.bit.yanado.model.dto.VideoInfo">
+		SELECT * FROM VideoInfo
+	</select>
+
+
+	<insert id="insertVideo">
+		INSERT INTO VideoInfo (uniqueNo, title, link,
+		uploadDate, people, synop, subEng, subKor,subMix)
+		VALUES(#{uniqueNo},#{title},#{link},sysdate,#{people},#{synop},#{subEng},#{subKor},#{subMix})
+	</insert>
+
+	<update id="updateVideo">
+		update VideoInfo set
+		title = #{title},
+		link = #{link},
+		people = #{people},
+		uploadDate = sysdate,
+		synop = #{synop},
+		subEng =
+		#{subEng},
+		subKor =
+		#{subKor},
+		subMix = #{subMix}
+		where
+		uniqueNo =
+		#{uniqueNo}
+	</update>
+
+
+	<select id="selectVideo"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		select * from VideoInfo
+		where
+		uniqueNo = ${uniqueNo}
+	</select>
+
+
+	<select id="countVideo" resultType="int">
+		select count(*)
+		from VideoInfo
+		  <if test="keyword != null">
+            where title like '%'||#{keyword}||'%'
+        </if>
+	</select>
+
+	<select id="countSelectVideo"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		select * from (select rownum rn, a.*
+		from(
+		select * from
+		VideoInfo order
+		by
+		uniqueNo
+		desc) A)
+		where rn between #{start} and
+		#{end}
+	</select>
+
+
+	<delete id="deleteVideo">
+		delete from VideoInfo
+		where
+		uniqueNo = #{uniqueNo}
+	</delete>
+
+
+	<!-- 여기여깅 -->
+
+
+	<select id="getListWithPaging"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		<![CDATA[
+		select 
+		uniqueNo, title, link,uploadDate, people, synop, subEng, subKor,subMix
+		from (select /*+ index_desc (VideoInfo pk_videoinfo)*/
+		rownum rn,uniqueNo, title, link,uploadDate, people, synop, subEng, subKor,subMix
+		from VideoInfo
+		where rownum <= #{pageNum} * #{amount}
+		]]>            
+                <if test="keyword != null">
+                    and (title like '%'||#{keyword}||'%' 
+                    or people like '%'||#{keyword}||'%' 
+                    or synop like '%'||#{keyword}||'%')
+                </if>
+  		 <![CDATA[
+                )
+        where rn > (#{pageNum} -1) * #{amount}
+    
+   		 ]]>
+	</select>
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

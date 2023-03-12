@@ -1,0 +1,1749 @@
+From d5f814e8b2fbc5fcec7f6f28d5c5241fd6ac02bb Mon Sep 17 00:00:00 2001
+From: soojung <soojungchoi59@gmail.com>
+Date: Mon, 28 Jun 2021 00:54:08 +0900
+Subject: [PATCH] mypage
+
+---
+ .../org.eclipse.core.resources.prefs          |   1 +
+ .../org.eclipse.wst.common.component          |  29 +-
+ ...framework.ide.eclipse.xml.namespaces.prefs |  33 ++
+ .../bit/yanado/controller/MainController.java |  53 +-
+ .../yanado/controller/MemberController.java   |  17 +-
+ .../bit/yanado/model/dao/MemInfoMapper.java   |   7 +
+ .../com/bit/yanado/model/dao/VideoMapper.java |   2 +-
+ .../bit/yanado/service/MemInfoService.java    |   6 +
+ .../yanado/service/MemInfoServiceImpl.java    |  15 +
+ .../com/bit/yanado/service/VideoService.java  |   2 +-
+ .../bit/yanado/service/VideoServiceImpl.java  |   5 +-
+ .../main/resources/mappers/MemInfoMapper.xml  |  68 ++-
+ Yanado/src/main/webapp/WEB-INF/views/main.jsp |  49 +-
+ .../webapp/WEB-INF/views/member/mypage.jsp    |   4 +-
+ .../main/webapp/WEB-INF/views/video/play.jsp  |  10 +
+ .../src/main/webapp/resources/css/sidebar.css |   4 +-
+ .../webapp/resources/css/videoSubtitle.css    |   1 -
+ .../webapp/resources/css/watchingRecord.css   | 111 +++++
+ .../webapp/resources/includes/sidebarMem.jsp  |   2 +-
+ .../yanado/controller/MainController.class    | Bin 9414 -> 9836 bytes
+ .../yanado/controller/MemberController.class  | Bin 3098 -> 4000 bytes
+ .../bit/yanado/model/dao/MemInfoMapper.class  | Bin 1915 -> 2350 bytes
+ .../bit/yanado/model/dao/VideoMapper.class    | Bin 1338 -> 1359 bytes
+ .../bit/yanado/service/MemInfoService.class   | Bin 1885 -> 2129 bytes
+ .../yanado/service/MemInfoServiceImpl.class   | Bin 4308 -> 4747 bytes
+ .../com/bit/yanado/service/VideoService.class | Bin 1196 -> 1217 bytes
+ .../bit/yanado/service/VideoServiceImpl.class | Bin 2813 -> 2859 bytes
+ .../target/classes/mappers/MemInfoMapper.xml  |  68 ++-
+ .../web-resources/META-INF/MANIFEST.MF        |   2 +-
+ .../maven/com.bit/yanado/pom.properties       |   4 +-
+ .../web-resources/META-INF/MANIFEST.MF        |   2 +-
+ .../maven/com.bit/yanado/pom.properties       |   4 +-
+ Yanado_j/uml.ucls                             | 457 ++++++++++++++++++
+ 33 files changed, 856 insertions(+), 100 deletions(-)
+ create mode 100644 Yanado/.settings/org.springframework.ide.eclipse.xml.namespaces.prefs
+ create mode 100644 Yanado/src/main/webapp/resources/css/watchingRecord.css
+ create mode 100644 Yanado_j/uml.ucls
+
+diff --git a/Yanado/.settings/org.eclipse.core.resources.prefs b/Yanado/.settings/org.eclipse.core.resources.prefs
+index 412eaa2..c490d22 100644
+--- a/Yanado/.settings/org.eclipse.core.resources.prefs
++++ b/Yanado/.settings/org.eclipse.core.resources.prefs
+@@ -4,3 +4,4 @@ encoding//src/main/java/com/bit/yanado/controller/MainController.java=UTF-8
+ encoding//src/main/java/com/bit/yanado/controller/MemberController.java=UTF-8
+ encoding//src/main/java/com/bit/yanado/service/AWSS3.java=UTF-8
+ encoding//src/main/webapp/WEB-INF/views/admin.jsp=UTF-8
++encoding/<project>=UTF-8
+diff --git a/Yanado/.settings/org.eclipse.wst.common.component b/Yanado/.settings/org.eclipse.wst.common.component
+index c8eab79..7974e59 100644
+--- a/Yanado/.settings/org.eclipse.wst.common.component
++++ b/Yanado/.settings/org.eclipse.wst.common.component
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+-                                                                    	
++                                                                        	
++    
+     
+     
+     
+@@ -17,7 +18,8 @@
+     
+     
+     <wb-module deploy-name="yanado-1.0.0-BUILD-SNAPSHOT">
+-                                                                                                                                                
++                                                                                                                                                        
++        
+         
+         
+         
+@@ -35,7 +37,8 @@
+         
+         
+         <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+-                                                                                                                                        		
++                                                                                                                                                		
++        
+         
+         
+         
+@@ -53,7 +56,8 @@
+         
+         
+         <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+-                                                                                                                                        		
++                                                                                                                                                		
++        
+         
+         
+         
+@@ -71,7 +75,8 @@
+         
+         
+         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+-                                                                                                                                        		
++                                                                                                                                                		
++        
+         
+         
+         
+@@ -89,7 +94,8 @@
+         
+         
+         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+-                                                                                                                                        
++                                                                                                                                                
++        
+         
+         
+         
+@@ -106,7 +112,8 @@
+         
+         
+         <wb-resource deploy-path="/WEB-INF/classes" source-path="/target/generated-sources/annotations"/>
+-                                                                                                                                        		
++                                                                                                                                                		
++        
+         
+         
+         
+@@ -124,8 +131,9 @@
+         
+         
+         <property name="java-output-path" value="target/classes"/>
+-        <property name="context-root" value="yanado"/>
+-                                                                                                                                        	
++        <property name="context-root" value="/"/>
++                                                                                                                                                	
++    
+     
+     
+     
+@@ -143,7 +151,8 @@
+     
+     
+     </wb-module>
+-                                                                    
++                                                                        
++
+ 
+ 
+ 
+diff --git a/Yanado/.settings/org.springframework.ide.eclipse.xml.namespaces.prefs b/Yanado/.settings/org.springframework.ide.eclipse.xml.namespaces.prefs
+new file mode 100644
+index 0000000..b968282
+--- /dev/null
++++ b/Yanado/.settings/org.springframework.ide.eclipse.xml.namespaces.prefs
+@@ -0,0 +1,33 @@
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://mybatis.org/schema/mybatis-spring=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/aop=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/beans=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/c=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/cache=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/context=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/jdbc=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/jee=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/lang=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/mvc=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/p=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/task=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/tx=
++//org.springframework.ide.eclipse.xml.namespaces.default.version.http\://www.springframework.org/schema/util=
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://mybatis.org/schema/mybatis-spring=mybatis-spring
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/aop=aop
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/beans=beans
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/c=c
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/cache=cache
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/context=context
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/jdbc=jdbc
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/jee=jee
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/lang=lang
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/mvc=mvc
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/p=p
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/task=task
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/tx=tx
++//org.springframework.ide.eclipse.xml.namespaces.prefix.http\://www.springframework.org/schema/util=util
++eclipse.preferences.version=1
++org.springframework.ide.eclipse.xml.namespaces.default.version.check.classpath=true
++org.springframework.ide.eclipse.xml.namespaces.enable.project.preferences=false
++org.springframework.ide.eclipse.xml.namespaces.loadNamespaceHandlerFromClasspath=true
++org.springframework.ide.eclipse.xml.namespaces.use.https.for.new.namespace.locations=false
+diff --git a/Yanado/src/main/java/com/bit/yanado/controller/MainController.java b/Yanado/src/main/java/com/bit/yanado/controller/MainController.java
+index c09b5ab..74fa64a 100644
+--- a/Yanado/src/main/java/com/bit/yanado/controller/MainController.java
++++ b/Yanado/src/main/java/com/bit/yanado/controller/MainController.java
+@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
+ import org.springframework.web.bind.annotation.RequestMethod;
+ import org.springframework.web.bind.annotation.RequestParam;
+ import org.springframework.web.bind.annotation.ResponseBody;
++import org.springframework.web.servlet.mvc.method.annotation.SessionAttributeMethodArgumentResolver;
+ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+ 
+ import com.bit.yanado.model.dto.BookMark;
+@@ -55,10 +56,22 @@ public class MainController {
+ 		
+ 		return "main";
+ 	}
+-
++	
++	@RequestMapping("/afterLogin")
++	public String loginMain(Poster poster, Model model,HttpServletRequest request , WatchingReco watchi) throws Exception {
++		HttpSession session = request.getSession();
++		MemInfo member = (MemInfo) session.getAttribute("member");
++//		session.setAttribute("record", memInfoServcie.listReco(member.getId()));
++//		WatchingReco record = (WatchingReco) 
++		model.addAttribute("poster", videoService.posterList(poster));
++		
++//		session.setAttribute("record", memInfoServcie.listReco(member.getId()));
++		
++		return "main";
++	}
+ 	
+ 	@RequestMapping(value = "login", method = { RequestMethod.POST, RequestMethod.GET })
+-	public String login(HttpServletRequest request, MemInfo mem, RedirectAttributes rttr, VideoInfo video, Model model)
++	public String login(HttpServletRequest request, MemInfo mem, WatchingReco record ,RedirectAttributes rttr, VideoInfo video, Model model)
+ 			throws Exception {
+ 		HttpSession session = request.getSession();
+ 		MemInfo mem2 = memInfoServcie.loginMem(mem);
+@@ -69,7 +82,7 @@ public class MainController {
+ 		}
+ 		session.setAttribute("member", mem2);
+ 		model.addAttribute("list", videoService.selectVideo(video));
+-		return "redirect:/";
++		return "redirect:/afterLogin";
+ 	}
+ 
+ 	
+@@ -143,36 +156,32 @@ public class MainController {
+ 
+ 	@RequestMapping(value = "logout.do", method = RequestMethod.GET)
+ 	public String logout(HttpServletRequest request) {
+-
+ 		HttpSession session = request.getSession();
+-
+ 		session.invalidate();
+-
+ 		return "redirect:/";
+ 	}
+ 
+ 	
+-	@RequestMapping(value = "/video/play", method = RequestMethod.GET)
+-	public String play(Model model, BookMark book,HttpSession session,VideoInfo video,WatchingReco watchi) throws Exception {
++	@RequestMapping(value = "/video/play", method = { RequestMethod.POST, RequestMethod.GET })
++	public String play(Model model, BookMark book,HttpServletRequest request ,VideoInfo video,WatchingReco watchi) throws Exception {
++		HttpSession session = request.getSession();
+ 		MemInfo member = (MemInfo) session.getAttribute("member");
+-		//model.addAttribute("rec", memInfoServcie.selectwatchReco(member.getId()));
+-//		model.addAttribute("watch",videoService.selectWatch(member.getId()));
+ 		model.addAttribute("video", videoService.selectVideo(video));
++//		model.addAttribute("record", memInfoServcie.listReco(video.getUniqueNo()));
+ 		model.addAttribute("bookMark", memInfoServcie.checkSubtimeStamp(book));
+-		System.out.println(book);
+-		System.out.println(video);
+ 		return "/video/play";
+ 	}
+ 	
+ 	@RequestMapping(value = "/video/playReco", method = RequestMethod.GET)
+-	public String playReco(Model model,VideoInfo video,BookMark book,HttpSession session,WatchingReco watchi) throws Exception {
++	public String playReco(Model model,VideoInfo video,BookMark book,HttpServletRequest request) throws Exception {
++		HttpSession session = request.getSession();
+ 		MemInfo member = (MemInfo) session.getAttribute("member");
+-//		VideoInfo video = (VideoInfo)session.getAttribute("video");
+-		//model.addAttribute("rec", memInfoServcie.selectwatchReco(member.getId()));
+-		//model.addAttribute("watch",videoService.selectWatch(member.getId()));
++		session.getAttribute("record");
++		System.out.println();
+ 		model.addAttribute("video", videoService.selectVideo(video));
+-		model.addAttribute("bookMark", memInfoServcie.checkSubtimeStamp(book));
+-		System.out.println(member);
++//		model.addAttribute("recentPo", memInfoServcie.listReco(WatchingReco));
++//		System.out.println(memInfoServcie.listReco(unique));
++//		System.out.println(session.getAttribute("record"));
+ 		return "/video/play";
+ 	}
+ 	
+@@ -180,15 +189,13 @@ public class MainController {
+ 	@RequestMapping(value = "/video/play/record.do",method = RequestMethod.GET)
+ 	@ResponseBody
+ 	public void videoRecord(WatchingReco rec, Model model,@RequestParam Map<String, Object> record) {
+-		System.out.println("testwatchingreco");
+ 		int checkReco = memInfoServcie.checkRecord(record);
+-		System.out.println("ok");
+ 		if (checkReco == 1 ) {
+ 			memInfoServcie.updateRecord(rec);
+-			System.out.println("1");
++			System.out.println("시청기록 저장완료");
+ 		} else {
+ 			memInfoServcie.videoRecord(rec);
+-			System.out.println("2");
++			System.out.println("시청기록 저장실패");
+ 		}
+ 		
+ 	}
+@@ -199,12 +206,10 @@ public class MainController {
+ 	@ResponseBody
+ 	public void bookmark(HttpServletRequest request, BookMark book, @RequestParam Map<String, Object> bookmark) {
+ 		int check = memInfoServcie.checkBookMark(bookmark);
+-		
+ 		if (check == 1) {
+ 			memInfoServcie.delBookMark(bookmark);
+ 		} else {
+ 			memInfoServcie.bookmark(bookmark);
+-
+ 		}
+ 
+ 	}
+diff --git a/Yanado/src/main/java/com/bit/yanado/controller/MemberController.java b/Yanado/src/main/java/com/bit/yanado/controller/MemberController.java
+index 53ab3d2..cfdd253 100644
+--- a/Yanado/src/main/java/com/bit/yanado/controller/MemberController.java
++++ b/Yanado/src/main/java/com/bit/yanado/controller/MemberController.java
+@@ -3,6 +3,7 @@ package com.bit.yanado.controller;
+ import javax.servlet.http.HttpServletRequest;
+ import javax.servlet.http.HttpSession;
+ 
++import org.apache.ibatis.annotations.Param;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Controller;
+ import org.springframework.ui.Model;
+@@ -47,11 +48,25 @@ public class MemberController {
+ 	 
+ 	 
+ 	@RequestMapping(value ="/mypage")
+-	public String mypageAction(Model model,HttpSession session, WatchingReco watchi) {
++	public String mypage(Model model,HttpServletRequest request,VideoInfo video,WatchingReco rec) {
++		HttpSession session = request.getSession();
+ 		MemInfo member = (MemInfo) session.getAttribute("member");
+ 		model.addAttribute("rec", memInfoServcie.selectwatchReco(member.getId()));
++//		WatchingReco record = (WatchingReco) memInfoServcie.selectwatchReco(member.getId());
++		model.addAttribute("rec", memInfoServcie.selectwatchReco(member.getId()));
++		session.setAttribute("record",memInfoServcie.selectwatchReco(member.getId()));
++		System.out.println(rec.getRecentPo());
+ 		return "/member/mypage";
+ 	}
++	
++	@RequestMapping(value ="/mypage.do")
++	public String mypageAction(Model model,HttpServletRequest request,VideoInfo video) {
++		HttpSession session = request.getSession();
++		MemInfo member = (MemInfo) session.getAttribute("member");
++//		session.setAttribute("record", memInfoServcie.listReco(member.getId(),));
++//		WatchingReco test = (WatchingReco)session.getAttribute("record");
++		return "redirect:/video/playReco";
++	}
+ 
+ 	@GetMapping("/mypage/read")
+ 	public void viewForm(HttpSession session, Model model) {
+diff --git a/Yanado/src/main/java/com/bit/yanado/model/dao/MemInfoMapper.java b/Yanado/src/main/java/com/bit/yanado/model/dao/MemInfoMapper.java
+index dee8c91..7b181be 100644
+--- a/Yanado/src/main/java/com/bit/yanado/model/dao/MemInfoMapper.java
++++ b/Yanado/src/main/java/com/bit/yanado/model/dao/MemInfoMapper.java
+@@ -50,4 +50,11 @@ public interface MemInfoMapper {
+ 	public void updateRecord(WatchingReco rec) ;
+ 	
+ 	public VideoInfo selectVideo(VideoInfo video);
++	
++	public List<Map<String, Object>> listReco(String id,int uniqueNo);
++	
++	public List<Map<String, Object>> playReco(WatchingReco rec);
++	
++	public WatchingReco playReco(String id, int uniqueNo);
++	
+ }
+diff --git a/Yanado/src/main/java/com/bit/yanado/model/dao/VideoMapper.java b/Yanado/src/main/java/com/bit/yanado/model/dao/VideoMapper.java
+index 6ab7d78..74d9165 100644
+--- a/Yanado/src/main/java/com/bit/yanado/model/dao/VideoMapper.java
++++ b/Yanado/src/main/java/com/bit/yanado/model/dao/VideoMapper.java
+@@ -28,7 +28,7 @@ public interface VideoMapper {
+ 		
+ 	public VideoInfo selectVideo(VideoInfo uniqueNo) ;
+ 	
+-	public WatchingReco selectWatch(String id);
++	public WatchingReco selectWatch(WatchingReco record);
+ 	
+ 	public int countVideo(Criteria cri) ;
+ 	
+diff --git a/Yanado/src/main/java/com/bit/yanado/service/MemInfoService.java b/Yanado/src/main/java/com/bit/yanado/service/MemInfoService.java
+index e4f2ac8..e08e0d6 100644
+--- a/Yanado/src/main/java/com/bit/yanado/service/MemInfoService.java
++++ b/Yanado/src/main/java/com/bit/yanado/service/MemInfoService.java
+@@ -48,4 +48,10 @@ public interface MemInfoService {
+ 	public void updateRecord(WatchingReco rec) ;
+ 	
+ 	public VideoInfo selectVideo(VideoInfo video);
++	
++	public List<Map<String, Object>> listReco(String id,int uniqueNo);
++	
++//	public List<Map<String, Object>> playReco(WatchingReco rec);
++
++	public WatchingReco playReco(String id, int uniqueNo);
+ }
+diff --git a/Yanado/src/main/java/com/bit/yanado/service/MemInfoServiceImpl.java b/Yanado/src/main/java/com/bit/yanado/service/MemInfoServiceImpl.java
+index 544f5d2..3c158d1 100644
+--- a/Yanado/src/main/java/com/bit/yanado/service/MemInfoServiceImpl.java
++++ b/Yanado/src/main/java/com/bit/yanado/service/MemInfoServiceImpl.java
+@@ -119,6 +119,21 @@ public class MemInfoServiceImpl implements MemInfoService{
+ 		return memInfoMapper.selectVideo(video);
+ 	}
+ 
++//	@Override
++//	public List<Map<String, Object>> playReco(WatchingReco rec) {
++//		return memInfoMapper.playReco(rec);
++//	}
++
++	@Override
++	public WatchingReco playReco(String id, int uniqueNo) {
++		return memInfoMapper.playReco(id, uniqueNo);
++	}
++
++	@Override
++	public List<Map<String, Object>> listReco(String id, int uniqueNo) {
++		return memInfoMapper.listReco(id, uniqueNo);
++	}
++
+ 
+ 
+ 
+diff --git a/Yanado/src/main/java/com/bit/yanado/service/VideoService.java b/Yanado/src/main/java/com/bit/yanado/service/VideoService.java
+index d4894b0..4b4ff4d 100644
+--- a/Yanado/src/main/java/com/bit/yanado/service/VideoService.java
++++ b/Yanado/src/main/java/com/bit/yanado/service/VideoService.java
+@@ -25,7 +25,7 @@ public interface VideoService {
+ 
+ 	public VideoInfo selectVideo(VideoInfo video);
+ 	
+-	public WatchingReco selectWatch(String id);
++	public WatchingReco selectWatch(WatchingReco record);
+ 	
+ 	public int countVideo(Criteria cri);
+ 
+diff --git a/Yanado/src/main/java/com/bit/yanado/service/VideoServiceImpl.java b/Yanado/src/main/java/com/bit/yanado/service/VideoServiceImpl.java
+index b2099d9..571cc82 100644
+--- a/Yanado/src/main/java/com/bit/yanado/service/VideoServiceImpl.java
++++ b/Yanado/src/main/java/com/bit/yanado/service/VideoServiceImpl.java
+@@ -77,9 +77,8 @@ public class VideoServiceImpl implements VideoService {
+ 	}
+ 
+ 	@Override
+-	public WatchingReco selectWatch(String id) {
+-		return videoMapper.selectWatch(id);
++	public WatchingReco selectWatch(WatchingReco record) {
++		return videoMapper.selectWatch(record);
+ 	}
+ 
+-
+ }
+diff --git a/Yanado/src/main/resources/mappers/MemInfoMapper.xml b/Yanado/src/main/resources/mappers/MemInfoMapper.xml
+index 1882d9c..c25ba2b 100644
+--- a/Yanado/src/main/resources/mappers/MemInfoMapper.xml
++++ b/Yanado/src/main/resources/mappers/MemInfoMapper.xml
+@@ -4,17 +4,20 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.bit.yanado.model.dao.MemInfoMapper">
+ 
+-	<select id = "listMem"
++	<select id="listMem"
+ 		resultType="com.bit.yanado.model.dto.MemInfo"
+ 		parameterType="com.bit.yanado.model.dto.MemInfo">
+ 		select * from MemInfo
+ 	</select>
+ 
+ 	<insert id="insertMem">
+-		insert INTO MemInfo(id, pw, name, tel, email, joinDate, emailAuthNum ,
++		insert INTO MemInfo(id, pw, name, tel, email,
++		joinDate, emailAuthNum ,
+ 		lastLoginDate, phAuthNum, isPay)
+-		VALUES (#{id}, #{pw}, #{name}, '123', #{email},sysDate, #{emailAuthNum},
+-		sysDate , '123' ,'1')
++		VALUES (#{id},
++		#{pw}, #{name}, '123', #{email},sysDate, #{emailAuthNum},
++		sysDate ,
++		'123' ,'1')
+ 	</insert>
+ 
+ 	<select id="loginMem"
+@@ -22,13 +25,12 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		select id, name,
+ 		lastLoginDate, isOut
+ 		from MemInfo
+-		where id = #{id, jdbcType = VARCHAR } and pw = #{pw, jdbcType = VARCHAR }
++		where id =
++		#{id, jdbcType = VARCHAR } and pw = #{pw, jdbcType = VARCHAR }
+ 	</select>
+ 
+-	<update id="loginMem2">
+-		update MemInfo set lastLoginDate = SYSDATE
+-		where id = #{id, jdbcType = VARCHAR }
+-	</update>
++	<!-- <update id="loginMem2"> update MemInfo set lastLoginDate = SYSDATE 
++		where id = #{id, jdbcType = VARCHAR } </update> -->
+ 
+ 	<select id="idCheck" resultType="int">
+ 		select count(*) from MemInfo
+@@ -56,7 +58,8 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		]]>
+ 		<if test="keyword != null">
+ 			and (title like '%'||#{keyword}||'%'
+-			or people like '%'||#{keyword}||'%'
++			or people like
++			'%'||#{keyword}||'%'
+ 			or synop like '%'||#{keyword}||'%')
+ 		</if>
+   		 <![CDATA[
+@@ -77,14 +80,19 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 
+ 	<insert id="videoRecord">
+ 		insert into WatchingReco
+-		( historySeq, id, uniqueNo, recentPo, iswatch,recentTime)
++		( historySeq, id, uniqueNo,
++		recentPo, iswatch,recentTime)
+ 		VALUES
+-		(WATCHSEQ.nextval, #{id}, #{uniqueNo}, #{recentPo},'y' ,sysDate)
++		(WATCHSEQ.nextval, #{id},
++		#{uniqueNo}, #{recentPo},'y' ,sysDate)
+ 	</insert>
+ 
+ 	<update id="updateRecord">
+-		UPDATE WatchingReco SET recentPo = #{recentPo}
+-		where id = #{id} and uniqueNo = #{uniqueNo}
++		UPDATE WatchingReco
++		SET recentPo = #{recentPo} ,
++		recentTime = sysDate
++		where id = #{id} and
++		uniqueNo = #{uniqueNo}
+ 	</update>
+ 
+ 	<insert id="bookmark" parameterType="java.util.Map">
+@@ -99,8 +107,10 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 	<delete id="delBookMark" parameterType="java.util.Map">
+ 		delete
+ 		from bookMark
+-		where id = #{id} and uniqueNo = #{uniqueNo} and
+-		subTimestamp = #{subTimestamp}
++		where
++		id = #{id} and uniqueNo = #{uniqueNo} and
++		subTimestamp =
++		#{subTimestamp}
+ 	</delete>
+ 
+ 	<select id="checkBookMark" parameterType="java.util.Map"
+@@ -116,26 +126,30 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		resultType="com.bit.yanado.model.dto.BookMark">
+ 		select subTimestamp
+ 		from bookMark
+-		where id = 'test' and uniqueNo = #{uniqueNo}
++		where id = 'test' and
++		uniqueNo = #{uniqueNo}
+ 	</select>
+ 
+ 	<select id="selectBookMark" resultType="map">
+ 		select title, link
+-		, bookMark.subTimestamp ,bookMark.subtitle,videoInfo.uniqueNo
+-		from videoInfo,bookMark
++		,
++		bookMark.subTimestamp ,bookMark.subtitle,videoInfo.uniqueNo
++		from
++		videoInfo,bookMark
+ 		where videoinfo.uniqueNo = bookmark.uniqueNo
+ 	</select>
+ 
+ 	<select id="selectwatchReco" resultType="map">
+ 		select
+ 		recentPo,title,poster,id,link,VideoInfo.uniqueNo
+-		from VideoInfo, WatchingReco,poster
++		from VideoInfo,
++		WatchingReco,poster
+ 		where VideoInfo.uniqueNo = WatchingReco.uniqueNo
+ 		and poster.titleSeq = substr(VideoInfo.uniqueNo,1,5)
+ 		and id = #{id}
+ 
+ 	</select>
+-	
++
+ 	<select id="viewReco"
+ 		resultType="com.bit.yanado.model.dto.VideoInfo">
+ 		select * from VideoInfo
+@@ -149,5 +163,17 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		id = #{id}
+ 	</select>
+ 
++	<select id="listReco"  resultType="map">
++		select * from WatchingReco
++		where id = #{id}
++		and uniqueNo = #{uniqueNo}
++	</select>
++
++	<select id="playReco" resultType="com.bit.yanado.model.dto.WatchingReco">
++		select recentPo
++		from WatchingReco
++		where id = #{id}
++		and uniqueNo = #{uniqueNo}
++	</select>
+ 
+ </mapper>
+\ No newline at end of file
+diff --git a/Yanado/src/main/webapp/WEB-INF/views/main.jsp b/Yanado/src/main/webapp/WEB-INF/views/main.jsp
+index 1064e86..9ce5b8a 100644
+--- a/Yanado/src/main/webapp/WEB-INF/views/main.jsp
++++ b/Yanado/src/main/webapp/WEB-INF/views/main.jsp
+@@ -16,8 +16,8 @@
+ 	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+ <link rel="stylesheet" href="/resources/css/main.css">
+ <script type="text/javascript">
+-var video = document.currentScript.parentElement;
+-video.volume = 0.1;
++	var video = document.currentScript.parentElement;
++	video.volume = 0.1;
+ </script>
+ 
+ </head>
+@@ -28,7 +28,7 @@ video.volume = 0.1;
+ 		<video autoplay="autoplay" id="video" preload="metadata" width="100%"
+ 			height="70%" style="background-color: balck;">
+ 			<source
+-				src="https://content.jwplatform.com/videos/q1fx20VZ-kNspJqnJ.mp4" 
++				src="https://content.jwplatform.com/videos/q1fx20VZ-kNspJqnJ.mp4"
+ 				type="video/mp4">
+ 			<track label="English" kind="subtitles" srclang="en"
+ 				src="https://yanado2.s3.ap-northeast-2.amazonaws.com/sintel_en.vtt"
+@@ -36,7 +36,8 @@ video.volume = 0.1;
+ 				src="resources/caption/sintel_en.vtt" kind="chapters" default>
+ 		</video>
+ 	</figure>
+-	<div class="wrapper-grey padded" style=" white-space:nowrap; overflow: visible;">
++	<div class="wrapper-grey padded"
++		style="white-space: nowrap; overflow: visible;">
+ 		<div class="container">
+ 			<c:forEach var="poster" items="${poster }">
+ 				<div class="col-xs-12 col-sm-4">
+@@ -58,11 +59,47 @@ video.volume = 0.1;
+ 	<!-- 로그인 후  -->
+ 	<div>
+ 		<c:if test="${member == null }">
++			<div class="wrapper-grey padded"
++				style="white-space: nowrap; overflow: visible;">
++				<div class="container">
++					<c:forEach var="poster" items="${poster }">
++						<div class="col-xs-12 col-sm-4">
++							<div class="card"
++								style="background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2)), url(<c:out value="${poster.POSTER}" />);">
++								<div class="card-category">
++									<c:out value="${poster.TITLE}" />
++								</div>
++								<div class="">
+ 
++									<a class="card-link" href='/video/play'></a>
++								</div>
++							</div>
++						</div>
++					</c:forEach>
++				</div>
++			</div>
+ 		</c:if>
+-		
++
+ 		<c:if test="${member != null }">
+-		
++			<div class="wrapper-grey padded"
++				style="white-space: nowrap; overflow: visible;">
++				<div class="container">
++					<c:forEach var="poster" items="${record}">
++						<div class="col-xs-12 col-sm-4">
++							<div class="card"
++								style="background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.2)), url(<c:out value="${poster.POSTER}" />);">
++								<div class="card-category">
++									<c:out value="${poster.TITLE}" />
++								</div>
++								<div class="">
++
++									<a class="card-link" href='/video/play'></a>
++								</div>
++							</div>
++						</div>
++					</c:forEach>
++				</div>
++			</div>
+ 		</c:if>
+ 
+ 	</div>
+diff --git a/Yanado/src/main/webapp/WEB-INF/views/member/mypage.jsp b/Yanado/src/main/webapp/WEB-INF/views/member/mypage.jsp
+index fdf7af6..abf60ce 100644
+--- a/Yanado/src/main/webapp/WEB-INF/views/member/mypage.jsp
++++ b/Yanado/src/main/webapp/WEB-INF/views/member/mypage.jsp
+@@ -15,7 +15,7 @@
+ 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+ <link rel="stylesheet"
+ 	href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+-<link rel="stylesheet" href="/resources/css/main.css">
++<link rel="stylesheet" href="/resources/css/watchingRecord.css">
+ <title>Insert title here</title>
+ </head>
+ <body>
+@@ -50,7 +50,7 @@
+ 							moveForm
+ 									.append("<input type = 'hidden' name = 'uniqueNo' value= '"
+ 											+ $(this).attr("href") + "'>");
+-							moveForm.attr("action", "/video/playReco");
++							moveForm.attr("action", "/member/mypage.do");
+ 						});
+ 		</script>
+ </body>
+diff --git a/Yanado/src/main/webapp/WEB-INF/views/video/play.jsp b/Yanado/src/main/webapp/WEB-INF/views/video/play.jsp
+index 0f9a258..16bb0a5 100644
+--- a/Yanado/src/main/webapp/WEB-INF/views/video/play.jsp
++++ b/Yanado/src/main/webapp/WEB-INF/views/video/play.jsp
+@@ -39,6 +39,16 @@
+ 	<input type="hidden" id="uniqueNo" name="uniqueNo"
+ 		value="${video.uniqueNo }">
+ 	<input type="hidden" id="id" name="id" value="${member.id}">
++	${recentPo}
++
++
++
++
++
++
++
++
++
+ 	<script type="text/javascript">
+ 		/* var subOpen = true; */
+ 		function subOpen() {
+diff --git a/Yanado/src/main/webapp/resources/css/sidebar.css b/Yanado/src/main/webapp/resources/css/sidebar.css
+index 29cb6db..beb9bc5 100644
+--- a/Yanado/src/main/webapp/resources/css/sidebar.css
++++ b/Yanado/src/main/webapp/resources/css/sidebar.css
+@@ -36,8 +36,8 @@
+ 	top: 65;
+ 	padding-top: 10;
+ 	width: 200px;
+-	height: 100%;
+-	overflow: visible;
++	height: 91% !important;
++	overflow: hidden;
+ 	-webkit-transition: width .05s linear;
+ 	transition: width .05s linear;
+ 	-webkit-transform: translateZ(0) scale(1, 1);
+diff --git a/Yanado/src/main/webapp/resources/css/videoSubtitle.css b/Yanado/src/main/webapp/resources/css/videoSubtitle.css
+index 90daccd..d7041d2 100644
+--- a/Yanado/src/main/webapp/resources/css/videoSubtitle.css
++++ b/Yanado/src/main/webapp/resources/css/videoSubtitle.css
+@@ -20,7 +20,6 @@
+ 
+ .videoArea {
+ 	width: 80%;
+-	height: 90%;
+ }
+ 
+ .subcontrol {
+diff --git a/Yanado/src/main/webapp/resources/css/watchingRecord.css b/Yanado/src/main/webapp/resources/css/watchingRecord.css
+new file mode 100644
+index 0000000..1b65d67
+--- /dev/null
++++ b/Yanado/src/main/webapp/resources/css/watchingRecord.css
+@@ -0,0 +1,111 @@
++.video {
++  margin-bottom: 10%;
++  font-family: Open-sans, sans-serif;
++}
++h1, h2, h3 {
++  font-family: Raleway, Helvetica, sans-serif;
++}
++h2 {
++  font-size: 28px;
++  font-weight: bold;
++  margin-bottom: 30px;
++  margin-top: 0;
++}
++.padded {
++  padding: 100px 0;
++}
++
++.container{
++	margin-left: 0px;
++	width: 80% !important;
++}
++
++.wrapper-grey {
++  background: #F4F4F4;
++}
++.avatar {
++  width: 30px;
++  border-radius: 50%;
++}
++.avatar-bordered {
++  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
++  border: white 1px solid;
++}
++.avatar-large {
++  width: 50px;
++}
++/* .banner {
++  color: white;
++  text-align: center;
++  height: 100vh;
++  background-size: cover !important;
++  display: flex;
++  align-items: center;
++  justify-content: center;
++}
++.banner h1 {
++  font-size: 50px;
++  font-weight: bold;
++  text-shadow: 0px 1px rgba(0, 0, 0, 0.2);
++}
++.banner p {
++  font-size: 25px;
++  font-weight: lighter;
++  color: rgba(255, 255, 255, 0.8);
++  margin-bottom: 50px;
++} */
++
++.card {
++  height: 250px;
++  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
++  background-size: cover !important;
++  color: white;
++  position: relative;
++  border-radius: 5px;
++  margin-bottom: 20px;
++}
++.card-user {
++  position: absolute;
++  right: 10px;
++  top: 10px;
++}
++.card-category {
++  position: absolute;
++  top: 10px;
++  left: 10px;
++  font-size: 20px;
++}
++.card-description {
++  position: absolute;
++  bottom: 10px;
++  left: 10px;
++}
++.card-description h2 {
++  font-size: 22px;
++}
++.card-description p {
++  font-size: 15px;
++}
++.card-link {
++  position: absolute;
++  top: 0;
++  bottom: 0;
++  width: 100%;
++  z-index:2;
++  background: black;
++  opacity: 0;
++}
++.card-link:hover{
++  opacity: 0.1;
++}
++.features img {
++  width: 100px;
++}
++.features h2 {
++  font-size: 20px;
++  margin-bottom: 10px;
++}
++.features p {
++  font-size: 15px;
++  font-weight: lighter;
++}
+\ No newline at end of file
+diff --git a/Yanado/src/main/webapp/resources/includes/sidebarMem.jsp b/Yanado/src/main/webapp/resources/includes/sidebarMem.jsp
+index 45e7bd9..7ecf132 100644
+--- a/Yanado/src/main/webapp/resources/includes/sidebarMem.jsp
++++ b/Yanado/src/main/webapp/resources/includes/sidebarMem.jsp
+@@ -5,7 +5,7 @@
+ <html>
+ <head>
+ <!-- <link href="resources/css/videoboard.css" rel="stylesheet" type="text/css"> -->
+-<link href="/resources/css/sidebar.css" rel="stylesheet"
++<link href="/resources/css/sidebar.css?ver=1" rel="stylesheet"
+ 	type="text/css">
+ <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
+ <title>Home</title>
+diff --git a/Yanado/target/classes/com/bit/yanado/controller/MainController.class b/Yanado/target/classes/com/bit/yanado/controller/MainController.class
+index 11029a0fca2e569838ad1d0ebc3aa11e8e2ff2fc..8cb9a5e661b204fcbbcb39ee2453efc609eafc30 100644
+GIT binary patch
+delta 3794
+zcmZ`*33yc175>j;X5O2bH(6dX2@|rJu!MvVL}UperbdupB7_7H!RinO2!sSC0}3vK
+zRI66N=xw!FQK&0bD}n|ht>T8&)+%bXt+k6?RjhWmt&0DBGa1m@?@Q+0ckaFCoc}-D
+zJKTJ<#sB;#k3I%qqAY&MKhYEPb@wjs>S>L1^$2#U8v?`C18zfYcU_<!4+T|ED3lkd
+zjVy~tV=ekz05fo=ftl)ZZ&k)DG^_i(6ADb6CGf6}u3i$21<;B)2F@0gs4Ki-e_vl$
+zZ;yq!Xj9kcPVpLO7nG@!ePOlLGSsHLQ<d9a<MTL9h<Mc;yHfRfDwHP_rUT{bLbF;O
+z@!VzmAh^In09F7IbQ)Nq-lq#o5miOTIn~SQKrGs~t~>5W7giZqDactFSs$tGj`S?A
+zZSILjmq%k3y0KdAFh=@%vDUyEL4(@m&!dqlkA)ceRHm88TSr~Bjzb#EMHVi`26e=o
+zW?v$3cX##00~m+PEL@I+D)F6v(iMWdSafMuEZP~bJAo_5rOw{iQgyBG5_Pgatk(GZ
+zhHn%2`=XIp=Zcn;s(uUGaD(7fhy8G%$iGF9(HZL!R1kZiS{RrpH>+)d7t9E5x3H6O
+z>a-@w9qJZqD@D64+>P(3+F)VeetNhp($#I^yQ(8NO&(VL!BF)+lw=^-KgExIIACEA
+zj|z;Q=*4l;!V8tnW12G{dkqucS1$#Navv918zMcCrM+d*)zoI-33V)3Bu}ZL%xd!x
+zp0QAb!)i`uAzyxA;W<37)@D|Pene&UOJWUv9Kw&a_(egD+Lc?XUd+s{JcJ__UdBxV
+zGv3=Ck9GAd*Fk;NLJ*k&yoR3|cwI2wiAaA|rs|eVM&)PtxvI~qcmG0gN^0w*{9g(@
+z>*C952<Z*{TD$Wb!DMx5cDZ^xt6;_(_^pNC;V@zLMdLGLy{q-PKUnyqmU$@a=+%<9
+zExe;83`o3v-IA3IpcWss@E-oGW@L{vU&99${(`@%SoZjmzvG_<{vpUdo>=W0`r^^m
+z7XF0~)uHUN;C}={r#`|b20m8rWe=Nj%yDB4;l{gr{1_o(i3{0+EJxNJk94l;h($W1
+zOk8o3A@K-8mCb5xAf)EyyeT0y-d<7LDutE|*Z2HgJ?kUgT}vbJs42yKKc0K!e@%B}
+zgWy^9MBY^OfnA|i+CkP+q3ZSd)%4t1!%bXeN(E!Eq_=lfYb3Uc<s>6586~6DTe&Sk
+zQ_84CZw_VO2evPh=e6Q_(av7MPAcC-#pT6Wwd=c<Mtf_A_DpOhb{TKs7_#@N&<ycw
+z^;0aFDs}3^{0ir_-jeCkplS*lS{eo6qu1SfbngT29N6>jt{r7ZcWyd*+g(SuU-|AG
+zTlCe_Ejd{lOgZEK9K7z%_qN>2YGLi|>n~U*<q?@<$y})u1UpwmJ6D~40?c`qv`dE?
+z9Uf^$<Qz+8^Q9wvzho&X94DjH_`(S?Ms*gh@=Qi9rm9y8+f+?)=Ex@GuwmW?Hw-?<
+z)(nE~)Oo@ld-fn&T+H@)bzZf*ury)w4A1}*ry(DwV+>|uI3=@^H&Kc*zEKCNP{-ug
+zt7)i*%UMn5%?xMNf%(*AVg$~?0(ht^A7`NvUfwwu3wf%7=iGc70UuYzT#bS&fzgW~
+zeLQmBBDkVhgvI*jeC@w@dEU>nZPiKtjjD(7<*|df(1kiPY(9%&8Iycrx4kUnJAf5~
+z=*hqWJH97u*t5gtAl7Ff?6o)YQgzrfh)Z4UBd6#ioAyv?1`7F`80C1=LeE=~hqDpJ
+z9M<MsRHKbOvmH~>LFs&llVwS7(wwwG<JX+Dk-bKTlQwMTY0XI+zJe<qcH3|jzDiEC
+zOmpX@wPuGWBSE9naWyZSG;3oyuAxKM@@N3^F~%8aH877hzJ}|lUo$r>$y|!KEt)t<
+zb4DWFj`jSp_EwFY)LowjexnBNa)A3CZx^|lHjCA+qJpIgUw5G7r@|}v25w53%ydjj
+z%H+*Xa@A0#p=a3NJg!wo8ys0WgRJCsiY>v-*sh9-OV79k-{Nkji`%#Ie{>&q@LlKY
+z9GcV21$CV1_-!uO-#)H9>GE0zA*K?=V>0f<U21MgY2xlQ1&eV{O4X{As!&SRy)H~I
+z+77RM-yZvc<Ka(c|HUMG1G2D@0l3uhz0C0=l#X-=4`L6U4bb>Q43WzT5z&4G+t57h
+zP5H7n?aTQ?zQ_)SUZ-*YLF`+&ACI(-wFd^U-#&O@gZ;facXge|eyq-W5Qi4pPwvOl
+z#RGWO{^0;#7{E()I^|y(#7|hg=0Uu%Fl@T*H}~ULb-pk&e*kas;Tgd1`S1?lPYFH^
+zir>}ObPc@kqHBM%|2=^J-UGj`ngK!a0m;xyjc6h+!zR{bvK(fU0We!l=BrJd`NSD!
+z?iDlpCSohId>iZJde%fgtMmpe!Hrl6g>_7x%a|^S%?$I^*v_N3I7Dt_8W4G!$bJ^J
+zHf!P<F~lU1HZB(*O=Zy7MvlNeOyDps5<gcS8t#(-S6-T5EEZP=ooJAtWKu^f#!HrD
+zvn)2lBROIxDBOw+$>l-QiBSby#|Y3gKzn%x_Bju(oIeUNf?<?=DWEU^Q(iLcgm~%{
+zT|nP;ismF+QtQ}32@7(iD4C`S-BU816SvdTo%~SPbwWbrq<P3mwGM-sp&KTvK}w{Q
+zH@~n=CM!?Mv^SsYl6Z=QnKawPE}zhC-pj6cyv-ZcxpETIp*rk7p$Ae}u1kadj~HqX
+zxl(z&*z%ozbq_V)%fRerKfI5`-|v8#m$a7#)8w=aUHPXq$r!038oJ{k)Lb<=?N5)H
+zCMM2&DmHmRqxMpDjWZ?~9;ueGYIj*_qULj)KT3dlj5TTmUogkQo?IE{jI{;K^#Q3J
+zLd;Q-Zu*}AS4hiXA^TVy1^mP;$HS<^BW%rs7@pu(a{4u<5jLg~HacK5z(xnE2H5C8
+zbyMBs)buOh98FC>eho~3TTbCQmrQh0tcV10_N9V)>Iral`%38c7|?n-0%a0^b>cn8
+z^Lm2R>!{TX%48QNxkGOEPK33jdQhf0rJgINIkldjl71;AZKCuc-gi6Qzubx7Ar|Ko
+zEWjr@dY-~aJWUdwL1F?96Yg_Ps3#_krirMR8H}I~b-hE0CZZmjWhOJ%Vl|%0N_NXE
+zN|Wth?=^EzPc#Frk5DN#QO%aK(www7oY)R0dc-97Js_=4_xwU89!xP&m15%TG!xk=
+zNt=teogqS^=DQf^A>7HpzeMMb5ckW({R*MI%4ofwhO0V83_EWqi>v5r5?hHZ_#8I9
+e_Ze)ZY-BDum)2aea0r#0$M;dB%=yrfMV|s5{nZ@+
+
+delta 3466
+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
+IiW6G!U#du-xc~qF
+
+diff --git a/Yanado/target/classes/com/bit/yanado/controller/MemberController.class b/Yanado/target/classes/com/bit/yanado/controller/MemberController.class
+index df92c305d2d835b4dec3cc54d30b3f9a89050ae6..edabf25a31dc0ecf6141270981d185764e2f39e3 100644
+GIT binary patch
+delta 1337
+zcmZ{j%X8aQ6vn@6>lH~8f`j8~rlh4#O7m#6fIw@9($KUtsVO0bv@}pE+lp~(ONpcy
+z(h|%YN~ep??TTT+qWcnHGGi7DYyJTi`~j?4GgCOa$^)3Pu&u{;zw<liJN|0lHwW}z
+z9{l(dfTwY5Q-4a*mDc)-Q+FBe@fN$%v)HJ){;ap`^IOts!@x5*rs7$KVg8qF<%4$9
+zjTYS1H8+e*97lmcue(v%4a0`-F&sKF!XL;7a~h@?l$P77xPgHaIH}@!hC%Welub<I
+z1+L2lX@=n-zb#qZQ`CM9XBg6fTh(z2XHCpvj^B{;O3B1aIM46N#l!RDNdiBp#hwc$
+z%6OH*4Bcotih@REEuuD_<QLP2=N5agh>I#NF!Wt@+K%0Hyt-Xp4<ol_;&oi2TK-zZ
+zkS&SV4d0#*8eUY60@rC3b-aPgD&CCyzAX)ROuU6T27`KCaI3Bt&HFkWR8>?M`XAz8
+zq6UIdS7Os9O(uIJDU@&!tyeFOENZAT^xDaw?42a!b{qo3P^s#->`EizccqNJn@sVJ
+z)6c(_a{Le3=4EBL&rA+ZS0fR^MjWKJBj=k^ZbaYqo~Zd60)~BoTWioLqk=7J*(*(F
+zojUWsZ!1GAdxOYVJ*U(NBLfGpVd8ys_<i*p`;h;s{>C)^t2WB^^Hk3@c?kV9qzNO(
+zZ}t>Aze9pb+tnEFVv?aCTXLq@#d9hAj8g?=EOUDF2kf_$Exg#pxfHq>O5?)+Jf^cR
+z|5yG>8sFhHOWMNH7OrHLzolX+^wRer753x3)-Z_yTHK>Jh8bGYB^0oXA|4^p*@O;#
+zc$Dsl6XT>~;%WjmS;f!ZrcYX2oxxS=NTaN;p$VCM%a}q73Z3!b^Gze$S%E>?4LYmP
+zueIH|WJ&+%T+XcSk@gDnlVm$hhBE@}L~?i+%-RLBumfgogJ}dG<4ANmjZVxX6HkbU
+z7~<*o(%l+;vP)ng+JY}6xkT^sV|!TV$CEsc{yUCMk|i@uNM~VU4u?<@q@#(=F6k3_
+z0Ta(KFQ8K-&xt9eiQyf*8&B!@x}d0RQw)q}uE)`ib@ATL7Gyry8<8%OSfJf1$Gi3T
+zNBEe$Kn=%v#VHMls&R!+_<bYCKIPYq!Q3T*XbLU;^+n1Ip9#h1v10P_Llh}|AzHpE
+Rrk5fAFX{d<a!DpQ^*0{b0RI30
+
+delta 710
+zcmZ{gOHUI~6vzK}I@4Qbh87Af4~;cUjY%I#6KIvGRk0{&k%})+e6@9i#uSk@F(f90
+z_zgUX3s-&wQDagUMz`)<`x#idaA!O-t<;T+xpU9s{(t{--o##y>fe5U`V3$S>wEg7
+zI$$=oH!Ew-Os!RavLUcd<-jx@?UVFQEe;2e6Yw{jM%CFea1yq}G;L~@FOO67O0&gj
+z`mP-tJS*Vaa%wsXIA@}WS(1Lsf5F5Y<|*UPi%YaChiG4>rT<x_Ra>vqSD6wMw5N{K
+zz9vQf{jWe=L{<dk(~ZhPz1cDl!)+6*xI-DeB<|63{fCgWVkE>NdSN`)EDRw|KaHiG
+zU8vA_qT{J>wv7`CzMx>M$?%!P2OJ(#KVqhh^9tIC`>-6o_?BB01o;fY$LA#ac^PqJ
+z5#ng7BZUDBa>SxYAr0Z(N?72RZtgM``E5VOk;7b>`2tt4#6`*FAV*jEi>yL4aSaCN
+zn%txE-%9p8E~Yvb(;bHt3Xb;KFp<Xu3X}<s?6^P|ZFwdXu8lCT%xHn@xbY8f_<(oQ
+z<5j!7Xezwyt|8gRt%DWZ?X5uf1}gF{XT9+gp37)we4Eix+{XjYM6_$d&AG;06BW1u
+we~0dwsJ;vx5haR+B4f4xv^?aNY}tdFp1$brT!F(}1&=)4FyGcV?rG=#02y*;X#fBK
+
+diff --git a/Yanado/target/classes/com/bit/yanado/model/dao/MemInfoMapper.class b/Yanado/target/classes/com/bit/yanado/model/dao/MemInfoMapper.class
+index a3d2cf602ffdd9c5a3d7882f9c091c00802324d6..3e65ad10b55c32c0abee8963afaf01d8e689b000 100644
+GIT binary patch
+delta 213
+zcmey(w@!%b)W2Q(7#J8#7%Vq($+IbN<YX3?1f?eDGcu@Z_+%xPCF<uS=B4WgmlS2@
+zrCWPWZe$h~jln9T!|KJuQIL~Z3DIsjxsXMA@&Z=A$xX~cj0JF>E~}@g4ORmh7(wcJ
+xC#$pRGKy^uWs_kvVqs)3U@&B0WZ(h1k%<AsHwL;D#y17?&46-@4CY`J7676(G&KMK
+
+delta 41
+wcmZ1{^qY_C)W2Q(7#J8#7>qV@$+Jz~!miCIy!ipU3?ml<BZC1@hKa!t02eI^3;+NC
+
+diff --git a/Yanado/target/classes/com/bit/yanado/model/dao/VideoMapper.class b/Yanado/target/classes/com/bit/yanado/model/dao/VideoMapper.class
+index e268086b7ae16ed77d66b658571aef35172c1780..ad4b8323585ee37c5795fc468afdcac94350a04d 100644
+GIT binary patch
+delta 28
+kcmdnRb)IX30yAU4<Oht>ll_@_88s(AWR%+M&-|JZ0EDXu?EnA(
+
+delta 42
+ycmX@lwTo+m0<);KhEG;vS)zVUVqUs_a7j^SUb?mB<cEw>lWmxJHy1MBV*~&&$POj|
+
+diff --git a/Yanado/target/classes/com/bit/yanado/service/MemInfoService.class b/Yanado/target/classes/com/bit/yanado/service/MemInfoService.class
+index 64d7aed7c3f31fa234cc2aa9419a4390ee6f41a0..2fe0ec18a1fc6aabe5c3007fa432f6d187572517 100644
+GIT binary patch
+delta 192
+zcmcc1cTs@r)W2Q(7#J8#7|b?u39)%_<YX3?1f?eDGcu@Z_+%xPCF<uS=B4WgmlS2@
+zrCWPyLc~f-GIR8OfJ&_y8Dg-hn=H@jrN~i`lUNBc%m$kx&B=kxQrzK*CCM2;!+{DX
+sORyO*ifr~|<6=}|VPw!}FkoP0-~l?1iNO%aH)1dbvKfJn1&Npf0MTqSasU7T
+
+delta 41
+wcmca8aF>tk)W2Q(7#J8#7z{UZ39(K7!KT9~v{{v%i;;_gkwG6Q!^B_!01z$-bpQYW
+
+diff --git a/Yanado/target/classes/com/bit/yanado/service/MemInfoServiceImpl.class b/Yanado/target/classes/com/bit/yanado/service/MemInfoServiceImpl.class
+index fdc52c09d4556f39b7cbee4510a59d5feef72ca2..c7c38eaa5b0ad15b10a6fd7cb6a8dbf6c61db254 100644
+GIT binary patch
+delta 381
+zcmcbj*saQS>ff$?3=9k=3~d{^=5s1?6yzjU2BjwFGcwp{_+%xPCF<uS=B4WgmlS2@
+zrCWPyPQJ(_HTefSuQfM=3_~RkLm5LkBLhciUS?rwsvl4nqbHD?lUZB>F+>%cA(KBc
+z3ya2Jl{v`a!`8sVP{U9=c{%3<M$yd{Tup5Cj38?m7#VnhF7;wy20{h~9<415lG-vm
+z87i0=HURld3<5xs4XBENp^-rlNGd?oF$ggT19?Cl4B8AjV0j*fDu!yH4n~kgKw23n
+n%fwKJ-TZpyU<?b|h_rwS=oFCAO$?ksnj2_gGZ42FGqeH#9b-o;
+
+delta 57
+zcmeBHy`so<>ff$?3=9k=4AmRC=5tP7!PUnoyxE+)iA{=$p$sU&#8A$_38c9h7#S*n
+JxU!g`3IOXo4P^iT
+
+diff --git a/Yanado/target/classes/com/bit/yanado/service/VideoService.class b/Yanado/target/classes/com/bit/yanado/service/VideoService.class
+index f18784e5ba6f41f32c8fa0a025b327bc3af77e10..7e0466d8ce120cc7a599a313fcce46a0207d36a4 100644
+GIT binary patch
+delta 22
+ecmZ3(d609%JSN6~$-a!zlg~2oZr;T7ixB`@BnR#Q
+
+delta 41
+xcmX@exrTGYJSGuq4WF#UvPAuy#JqI<;F6-uymafy3z?-S?_%QJ{GRC&BLFn44-5bR
+
+diff --git a/Yanado/target/classes/com/bit/yanado/service/VideoServiceImpl.class b/Yanado/target/classes/com/bit/yanado/service/VideoServiceImpl.class
+index 1e1d41dd94721bb7445eb7cfae0892818eb463e2..338c915993715ad9f9fe2d1f4fe1bd0d66618af1 100644
+GIT binary patch
+delta 69
+zcmew>x>{_5G8<EX#$-blDc<nJlH`ocy!4>d<b3PN1}xH(gV-dw*ouJMq7+63b&w(+
+LWJQ~s*s56o+)@=1
+
+delta 77
+zcmZ22_E&U+GMk9ChEG;vS)zVUVqUs_a7j^SUb^*U0~YDY_H4Y$+zc`d0Xz)841SCZ
+SOqnT+3_=)+H*a98W&r?T*A@H#
+
+diff --git a/Yanado/target/classes/mappers/MemInfoMapper.xml b/Yanado/target/classes/mappers/MemInfoMapper.xml
+index 1882d9c..c25ba2b 100644
+--- a/Yanado/target/classes/mappers/MemInfoMapper.xml
++++ b/Yanado/target/classes/mappers/MemInfoMapper.xml
+@@ -4,17 +4,20 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.bit.yanado.model.dao.MemInfoMapper">
+ 
+-	<select id = "listMem"
++	<select id="listMem"
+ 		resultType="com.bit.yanado.model.dto.MemInfo"
+ 		parameterType="com.bit.yanado.model.dto.MemInfo">
+ 		select * from MemInfo
+ 	</select>
+ 
+ 	<insert id="insertMem">
+-		insert INTO MemInfo(id, pw, name, tel, email, joinDate, emailAuthNum ,
++		insert INTO MemInfo(id, pw, name, tel, email,
++		joinDate, emailAuthNum ,
+ 		lastLoginDate, phAuthNum, isPay)
+-		VALUES (#{id}, #{pw}, #{name}, '123', #{email},sysDate, #{emailAuthNum},
+-		sysDate , '123' ,'1')
++		VALUES (#{id},
++		#{pw}, #{name}, '123', #{email},sysDate, #{emailAuthNum},
++		sysDate ,
++		'123' ,'1')
+ 	</insert>
+ 
+ 	<select id="loginMem"
+@@ -22,13 +25,12 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		select id, name,
+ 		lastLoginDate, isOut
+ 		from MemInfo
+-		where id = #{id, jdbcType = VARCHAR } and pw = #{pw, jdbcType = VARCHAR }
++		where id =
++		#{id, jdbcType = VARCHAR } and pw = #{pw, jdbcType = VARCHAR }
+ 	</select>
+ 
+-	<update id="loginMem2">
+-		update MemInfo set lastLoginDate = SYSDATE
+-		where id = #{id, jdbcType = VARCHAR }
+-	</update>
++	<!-- <update id="loginMem2"> update MemInfo set lastLoginDate = SYSDATE 
++		where id = #{id, jdbcType = VARCHAR } </update> -->
+ 
+ 	<select id="idCheck" resultType="int">
+ 		select count(*) from MemInfo
+@@ -56,7 +58,8 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		]]>
+ 		<if test="keyword != null">
+ 			and (title like '%'||#{keyword}||'%'
+-			or people like '%'||#{keyword}||'%'
++			or people like
++			'%'||#{keyword}||'%'
+ 			or synop like '%'||#{keyword}||'%')
+ 		</if>
+   		 <![CDATA[
+@@ -77,14 +80,19 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 
+ 	<insert id="videoRecord">
+ 		insert into WatchingReco
+-		( historySeq, id, uniqueNo, recentPo, iswatch,recentTime)
++		( historySeq, id, uniqueNo,
++		recentPo, iswatch,recentTime)
+ 		VALUES
+-		(WATCHSEQ.nextval, #{id}, #{uniqueNo}, #{recentPo},'y' ,sysDate)
++		(WATCHSEQ.nextval, #{id},
++		#{uniqueNo}, #{recentPo},'y' ,sysDate)
+ 	</insert>
+ 
+ 	<update id="updateRecord">
+-		UPDATE WatchingReco SET recentPo = #{recentPo}
+-		where id = #{id} and uniqueNo = #{uniqueNo}
++		UPDATE WatchingReco
++		SET recentPo = #{recentPo} ,
++		recentTime = sysDate
++		where id = #{id} and
++		uniqueNo = #{uniqueNo}
+ 	</update>
+ 
+ 	<insert id="bookmark" parameterType="java.util.Map">
+@@ -99,8 +107,10 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 	<delete id="delBookMark" parameterType="java.util.Map">
+ 		delete
+ 		from bookMark
+-		where id = #{id} and uniqueNo = #{uniqueNo} and
+-		subTimestamp = #{subTimestamp}
++		where
++		id = #{id} and uniqueNo = #{uniqueNo} and
++		subTimestamp =
++		#{subTimestamp}
+ 	</delete>
+ 
+ 	<select id="checkBookMark" parameterType="java.util.Map"
+@@ -116,26 +126,30 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		resultType="com.bit.yanado.model.dto.BookMark">
+ 		select subTimestamp
+ 		from bookMark
+-		where id = 'test' and uniqueNo = #{uniqueNo}
++		where id = 'test' and
++		uniqueNo = #{uniqueNo}
+ 	</select>
+ 
+ 	<select id="selectBookMark" resultType="map">
+ 		select title, link
+-		, bookMark.subTimestamp ,bookMark.subtitle,videoInfo.uniqueNo
+-		from videoInfo,bookMark
++		,
++		bookMark.subTimestamp ,bookMark.subtitle,videoInfo.uniqueNo
++		from
++		videoInfo,bookMark
+ 		where videoinfo.uniqueNo = bookmark.uniqueNo
+ 	</select>
+ 
+ 	<select id="selectwatchReco" resultType="map">
+ 		select
+ 		recentPo,title,poster,id,link,VideoInfo.uniqueNo
+-		from VideoInfo, WatchingReco,poster
++		from VideoInfo,
++		WatchingReco,poster
+ 		where VideoInfo.uniqueNo = WatchingReco.uniqueNo
+ 		and poster.titleSeq = substr(VideoInfo.uniqueNo,1,5)
+ 		and id = #{id}
+ 
+ 	</select>
+-	
++
+ 	<select id="viewReco"
+ 		resultType="com.bit.yanado.model.dto.VideoInfo">
+ 		select * from VideoInfo
+@@ -149,5 +163,17 @@ PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+ 		id = #{id}
+ 	</select>
+ 
++	<select id="listReco"  resultType="map">
++		select * from WatchingReco
++		where id = #{id}
++		and uniqueNo = #{uniqueNo}
++	</select>
++
++	<select id="playReco" resultType="com.bit.yanado.model.dto.WatchingReco">
++		select recentPo
++		from WatchingReco
++		where id = #{id}
++		and uniqueNo = #{uniqueNo}
++	</select>
+ 
+ </mapper>
+\ No newline at end of file
+diff --git a/Yanado/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF b/Yanado/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+index bd4d309..5355ac1 100644
+--- a/Yanado/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
++++ b/Yanado/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+@@ -1,5 +1,5 @@
+ Manifest-Version: 1.0
+-Built-By: bitcamp
++Built-By: wjdtn
+ Build-Jdk: 15.0.2
+ Created-By: Maven Integration for Eclipse
+ 
+diff --git a/Yanado/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties b/Yanado/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties
+index 46349b8..4485131 100644
+--- a/Yanado/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties
++++ b/Yanado/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties
+@@ -1,6 +1,6 @@
+ #Generated by Maven Integration for Eclipse
+-#Fri Jun 25 15:32:50 KST 2021
+-m2e.projectLocation=C\:\\yanado\\final\\Yanado
++#Sun Jun 27 21:23:45 KST 2021
++m2e.projectLocation=C\:\\Users\\wjdtn\\Desktop\\soojung_project\\FinalProject_movie&study\\Yanado
+ m2e.projectName=Yanado
+ groupId=com.bit
+ artifactId=yanado
+diff --git a/Yanado_j/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF b/Yanado_j/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+index bd4d309..5355ac1 100644
+--- a/Yanado_j/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
++++ b/Yanado_j/target/m2e-wtp/web-resources/META-INF/MANIFEST.MF
+@@ -1,5 +1,5 @@
+ Manifest-Version: 1.0
+-Built-By: bitcamp
++Built-By: wjdtn
+ Build-Jdk: 15.0.2
+ Created-By: Maven Integration for Eclipse
+ 
+diff --git a/Yanado_j/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties b/Yanado_j/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties
+index f67bfb6..6ab0ff5 100644
+--- a/Yanado_j/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties
++++ b/Yanado_j/target/m2e-wtp/web-resources/META-INF/maven/com.bit/yanado/pom.properties
+@@ -1,6 +1,6 @@
+ #Generated by Maven Integration for Eclipse
+-#Tue Jun 22 15:02:27 KST 2021
+-m2e.projectLocation=C\:\\yanado\\final\\Yanado_j
++#Sun Jun 27 21:23:46 KST 2021
++m2e.projectLocation=C\:\\Users\\wjdtn\\Desktop\\soojung_project\\FinalProject_movie&study\\Yanado_j
+ m2e.projectName=Yanado_j
+ groupId=com.bit
+ artifactId=yanado
+diff --git a/Yanado_j/uml.ucls b/Yanado_j/uml.ucls
+new file mode 100644
+index 0000000..dc43ee6
+--- /dev/null
++++ b/Yanado_j/uml.ucls
+@@ -0,0 +1,457 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<class-diagram version="1.1.14" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
++  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
++  <class id="1" language="java" name="com.bit.yanado.model.dto.BookMark" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/BookMark.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="549" width="199" x="318" y="-277"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="2" language="java" name="com.bit.yanado.model.dto.EmailDTO" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/EmailDTO.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="615" y="87"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="3" language="java" name="com.bit.yanado.model.dto.MemInfo" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/meminfo.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="806" y="-128"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="4" language="java" name="com.bit.yanado.model.dto.PaymentInfo" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/paymentinfo.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="994" y="-16"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="5" language="java" name="com.bit.yanado.model.dto.Poster" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/Poster.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1151" y="117"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="6" language="java" name="com.bit.yanado.model.dto.Qna" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/Qna.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1312" y="-14"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="7" language="java" name="com.bit.yanado.model.dto.Tag" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/tag.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1481" y="148"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="8" language="java" name="com.bit.yanado.model.dto.TagName" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/tagName.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1643" y="144"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="9" language="java" name="com.bit.yanado.model.dto.Teaser" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/Teaser.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1810" y="95"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="10" language="java" name="com.bit.yanado.model.dto.VideoInfo" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/videoinfo.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1974" y="-66"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="11" language="java" name="com.bit.yanado.model.dto.VideoTitle" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/videotitle.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="2121" y="180"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="12" language="java" name="com.bit.yanado.model.dto.WatchingReco" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/watchingreco.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="2275" y="70"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="13" language="java" name="com.bit.yanado.controller.AdminController" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/controller/AdminController.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="327" y="854"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="14" language="java" name="com.bit.yanado.controller.MainController" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/controller/MainController.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1029" y="1340"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="15" language="java" name="com.bit.yanado.controller.MemberController" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/controller/MemberController.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1016" y="911"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="16" language="java" name="com.bit.yanado.controller.VideoController" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/controller/VideoController.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="651" y="473"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <interface id="17" language="java" name="com.bit.yanado.model.dao.AdminMapper" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dao/AdminMapper.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1580" y="614"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </interface>  
++  <interface id="18" language="java" name="com.bit.yanado.model.service.AdminService" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/AdminService.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="364" y="1337"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </interface>  
++  <interface id="19" language="java" name="com.bit.yanado.model.dao.MemberMapper" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dao/MemberMapper.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1590" y="1039"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </interface>  
++  <interface id="20" language="java" name="com.bit.yanado.model.dao.VideoMapper" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dao/VideoMapper.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1311" y="694"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </interface>  
++  <class id="21" language="java" name="com.bit.yanado.model.service.AwsS3" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/AwsS3.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="-25" y="654"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <interface id="22" language="java" name="com.bit.yanado.model.service.EmailService" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/EmailService.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1272" y="1341"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </interface>  
++  <class id="23" language="java" name="com.bit.yanado.model.service.EmailServiceImpl" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/EmailServiceImpl.java" binary="false" 
++    corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1477" y="1364"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <interface id="24" language="java" name="com.bit.yanado.model.service.MemberService" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/MemberService.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="647" y="1147"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </interface>  
++  <class id="25" language="java" name="com.bit.yanado.model.service.MemberServiceImpl" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/MemberServiceImpl.java" binary="false" 
++    corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1310" y="1054"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <interface id="26" language="java" name="com.bit.yanado.model.service.VideoService" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/VideoService.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="655" y="771"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </interface>  
++  <class id="27" language="java" name="com.bit.yanado.model.service.VideoServiceImpl" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/service/VideoServiceImpl.java" binary="false" 
++    corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="1021" y="548"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <class id="28" language="java" name="com.bit.yanado.model.dto.AdminInfo" project="Yanado_j" 
++    file="/Yanado_j/src/main/java/com/bit/yanado/model/dto/AdminInfo.java" binary="false" corner="BOTTOM_RIGHT">    
++    <position height="-1" width="-1" x="207" y="89"/>    
++    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++      sort-features="false" accessors="true" visibility="true">      
++      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
++      <operations public="true" package="true" protected="true" private="true" static="true"/>    
++    </display>  
++  </class>  
++  <association id="29">    
++    <end type="SOURCE" refId="16" navigable="false">      
++      <attribute id="30" name="videoService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="31" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="26" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="32">    
++    <end type="SOURCE" refId="13" navigable="false">      
++      <attribute id="33" name="adminService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="34" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="18" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="35">    
++    <end type="SOURCE" refId="15" navigable="false">      
++      <attribute id="36" name="memberService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="37" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="24" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <realization id="38">    
++    <end type="SOURCE" refId="27"/>    
++    <end type="TARGET" refId="26"/>  
++  </realization>  
++  <association id="39">    
++    <end type="SOURCE" refId="25" navigable="false">      
++      <attribute id="40" name="videoMapper">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="41" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="20" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <realization id="42">    
++    <end type="SOURCE" refId="23"/>    
++    <end type="TARGET" refId="22"/>  
++  </realization>  
++  <association id="43">    
++    <end type="SOURCE" refId="13" navigable="false">      
++      <attribute id="44" name="awsS3">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="45" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="21" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="46">    
++    <end type="SOURCE" refId="21" navigable="false">      
++      <attribute id="47" name="instance">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="48" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="21" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="49">    
++    <end type="SOURCE" refId="13" navigable="false">      
++      <attribute id="50" name="memberService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="51" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="24" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="52">    
++    <end type="SOURCE" refId="14" navigable="false">      
++      <attribute id="53" name="memberService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="54" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="24" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="55">    
++    <end type="SOURCE" refId="13" navigable="false">      
++      <attribute id="56" name="videoService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="57" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="26" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="58">    
++    <end type="SOURCE" refId="14" navigable="false">      
++      <attribute id="59" name="adminService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="60" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="18" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="61">    
++    <end type="SOURCE" refId="27" navigable="false">      
++      <attribute id="62" name="videoMapper">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="63" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="20" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="64">    
++    <end type="SOURCE" refId="14" navigable="false">      
++      <attribute id="65" name="mailSender">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="66" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="22" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <realization id="67">    
++    <end type="SOURCE" refId="25"/>    
++    <end type="TARGET" refId="24"/>  
++  </realization>  
++  <association id="68">    
++    <end type="SOURCE" refId="25" navigable="false">      
++      <attribute id="69" name="memberMapper">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="70" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="19" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="71">    
++    <end type="SOURCE" refId="14" navigable="false">      
++      <attribute id="72" name="videoService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="73" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="26" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <association id="74">    
++    <end type="SOURCE" refId="15" navigable="false">      
++      <attribute id="75" name="videoService">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </attribute>      
++      <multiplicity id="76" minimum="0" maximum="1">        
++        <position height="0" width="0" x="0" y="0"/>      
++      </multiplicity>    
++    </end>    
++    <end type="TARGET" refId="26" navigable="true"/>    
++    <display labels="true" multiplicity="true"/>  
++  </association>  
++  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
++    sort-features="false" accessors="true" visibility="true">    
++    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
++    <operations public="true" package="true" protected="true" private="true" static="true"/>  
++  </classifier-display>  
++  <association-display labels="true" multiplicity="true"/>
++</class-diagram>
+\ No newline at end of file
+-- 
+2.31.1.windows.1
+

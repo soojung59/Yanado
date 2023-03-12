@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTDMapper3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bit.yanado.model.dao.VideoMapper">
+
+
+	<insert id="insertVideo">
+		INSERT INTO VideoInfo (uniqueNo, title, link,
+		uploadDate, people, synop, subEng, subKor,subMix)
+		VALUES(#{uniqueNo},#{title},#{link},sysdate,#{people},#{synop},#{subEng},#{subKor},#{subMix})
+	</insert>
+
+	<insert id="insertPoster">
+		insert into poster(posterseq,poster,titleseq)
+		values (POSTERSEQ.nextval, #{poster} ,#{titleSeq})
+	</insert>
+
+	<insert id="insertTeaser">
+		insert into teaser(teaserseq, titleSeq,teaserLink
+		,uploaddate)
+		VALUES (TEASERSEQ.nextval,#{titleSeq} , #{teaserLink},
+		sysdate)
+	</insert>
+
+	<insert id="insertTag"  >
+		insert INTO tag(tagNameSeq,tagseq,uniqueNo)
+		VALUES(#{tagNameSeq},TAGSEQ.nextval,#{uniqueNo})
+	</insert> 	
+
+	<insert id="insertTitle">
+		insert into VideoTitle(titleSeq,title)
+		values (#{titleSeq}, #{title})
+	</insert>
+
+	<select id="getTitle"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		select title , substr(uniqueno,1,5) as titleSeq
+		from
+		videoinfo
+		group by title , substr(uniqueno,1,5)
+		order by title asc
+	</select>
+
+	<select id="getTag"
+		resultType="com.bit.yanado.model.dto.TagName">
+		select tagName, tagNameSeq
+		from tagName
+	</select>
+
+	<select id="maxUniqueNo" resultType="int">
+		select
+		max(substr(uniqueno,1,5))
+		from videoInfo
+	</select>
+	
+	<update id="updateTagNameCount">
+		update tagName 
+		SET tagCount = tagCount+1
+		where tagName = #{tagName}
+	</update>
+	
+
+	<delete id="deleteVideo">
+		delete from VideoInfo
+		where
+		uniqueNo = #{uniqueNo}
+	</delete>
+
+
+	<delete id="deletePoster">
+		delete from poster
+		where
+		titleseq = #{titleSeq}
+	</delete>
+
+	<delete id="deleteTeaser">
+		delete from teaser
+		where
+		titleseq = #{titleSeq}
+	</delete>
+
+	<update id="updateVideo">
+		update VideoInfo set title = #{title}, link = #{link}, people = #{people}, uploadDate = sysdate,
+		synop = #{synop},
+		subEng = #{subEng}, subKor = #{subKor}, subMix = #{subMix}
+		where
+		uniqueNo = #{uniqueNo}
+	</update>
+
+	<update id="updateTeaser">
+		update teaser set teaserlink = #{teaserLink},
+		uploaddate = sysdate
+		where titleseq = #{titleSeq};
+	</update>
+
+	<update id="updatePoster">
+		update poster set poster= #{poster}
+		where titleseq = #{titleSeq};
+	</update>
+
+	<select id="teaserList" resultType="com.bit.yanado.model.dto.Teaser">
+		select * from teaser
+	</select>
+
+	<select id="posterList" resultType="map">
+		<![CDATA[
+		select poster, videoinfo.uniqueno,videoinfo.title, videoinfo.link, count(watchingreco.uniqueno) as count
+		from poster inner join watchingreco on substr(watchingreco.uniqueno,1,7) = poster.titleseq
+		inner join videoinfo on watchingreco.uniqueno = videoinfo.uniqueno
+		group by poster,videoinfo.uniqueno, videoinfo.title, videoinfo.link
+
+		]]>
+	</select>
+
+
+	<select id="searchList" resultType="map">
+	<![CDATA[
+		select tag.uniqueno ,videoinfo.link,videoinfo.title,poster.poster
+		from tag,videoInfo,poster
+		where tagNameSeq in
+		(select tagNameSeq
+		from Tag
+		where uniqueno in(
+		select uniqueno
+		from videoinfo
+		where title like '%'||#{keyword}||'%')
+		)
+		and videoinfo.uniqueno = tag.uniqueno
+		and substr(videoinfo.uniqueno,1,7) = poster.titleseq
+		group by tag.uniqueno ,videoinfo.link,videoinfo.title,poster.poster
+		]]>
+	</select>
+
+	<select id="selectVideo"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		select *
+		from VideoInfo
+		where uniqueNo = #{uniqueNo}
+	</select>
+
+	<select id="selectPoster"
+		resultType="com.bit.yanado.model.dto.Poster">
+		select *
+		from poster
+		where titleseq = #{titleSeqSeason}
+	</select>
+
+	<select id="selectTeaser"
+		resultType="com.bit.yanado.model.dto.Teaser">
+		select *
+		from teaser
+		where titleSeq = #{titleSeq}
+	</select>
+
+
+	<select id="selectWatch"
+		resultType="com.bit.yanado.model.dto.WatchingReco">
+		select historySeq,id, uniqueNo,recentPo
+		from WatchingReco
+		where uniqueNo = #{uniqueNo}
+		and id = #{id}
+	</select>
+
+
+	<select id="countVideo" resultType="int">
+		select count(*)
+		from VideoInfo
+		<if test="keyword != null">
+			where title like '%'||#{keyword}||'%'
+		</if>
+	</select>
+
+	<select id="countSelectVideo"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		select * from (select rownum rn, a.*
+		from(
+		select * from
+		VideoInfo order
+		by
+		uniqueNo
+		desc) A)
+		where rn between #{start} and
+		#{end}
+	</select>
+
+	<select id="getListWithPaging"
+		resultType="com.bit.yanado.model.dto.VideoInfo">
+		<![CDATA[
+		select 
+		uniqueNo, title, link,uploadDate, people, synop, subEng, subKor,subMix
+		from (select /*+ index_desc (VideoInfo pk_videoinfo)*/
+		rownum rn,uniqueNo, title, link,uploadDate, people, synop, subEng, subKor,subMix
+		from VideoInfo
+		where rownum <= #{pageNum} * #{amount}
+		]]>
+		<if test="keyword != null">
+			and (title like '%'||#{keyword}||'%'
+			or people like
+			'%'||#{keyword}||'%'
+			or synop like '%'||#{keyword}||'%')
+		</if>
+  		 <![CDATA[
+                )
+        where rn > (#{pageNum} -1) * #{amount}
+    
+   		 ]]>
+	</select>
+
+
+	<select id="todayLogin" resultType="int">
+	<![CDATA[
+		select count(lastlogindate)
+		from meminfo
+		where to_char(lastlogindate,'yyyymmdd') = to_char(sysdate,'yyyymmdd')
+		]]>
+	</select>
+	
+	<select id="watchiedVideo" resultType="int">
+	<![CDATA[
+		select count(recenttime)
+		from watchingreco
+		where to_char(recenttime,'yyyymmdd') = to_char(sysdate,'yyyymmdd')
+	]]>
+	</select>
+	
+	<select id="countMem" resultType="int">
+		select COUNT (*)
+		from meminfo
+	</select>
+
+	<select id="countVd"  resultType="int">
+		select COUNT (*)
+		from videoinfo
+	</select>
+
+	<select id="popularVd" 	resultType="com.bit.yanado.model.dto.VideoInfo">
+	<![CDATA[
+		select  videoinfo.title as title ,count(videoinfo.title) as count
+		from watchingreco, videoinfo
+		where watchingreco.uniqueno = videoinfo.uniqueno
+		and rownum <=10
+		group by videoinfo.title
+		order by count(videoinfo.title) desc
+	]]>
+	</select>
+
+
+
+</mapper>

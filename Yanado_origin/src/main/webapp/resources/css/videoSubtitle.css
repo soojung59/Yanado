@@ -1,0 +1,106 @@
+body{
+  overflow: hidden;
+  background-color: #111;
+}
+* {
+  box-sizing: border-box;
+}
+
+input[type=checkbox] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+input[type=checkbox]:focus {
+  outline: 0;
+}
+
+.toggle {
+  height: 32px;
+  width: 52px;
+  border-radius: 16px;
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  border: 2px solid #474755;
+  background: linear-gradient(180deg, #2D2F39 0%, #1F2027 100%);
+  transition: all 0.2s ease;
+}
+.toggle:after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 2px rgba(44, 44, 44, 0.2);
+  transition: all 0.2s cubic-bezier(0.5, 0.1, 0.75, 1.35);
+}
+.toggle:checked {
+  border-color: #be1414;
+}
+.toggle:checked:after {
+  transform: translatex(20px);
+}
+
+
+video{  
+    z-index: 1;
+    position: absolute;
+    width: 74%;
+    height: 94vh;
+    border: none;
+    
+}
+ .transcript{
+    position: absolute;
+    width: 25%;
+    background-color: rgba(97, 96, 96, 0.301);
+    color: white;
+    position: absolute;
+    height: 95%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    margin: 0 0 0 0 ;
+    left:75%;
+    top:3%;
+    margin-bottom: 20%;
+}
+.cuepoint{
+    height: 50px;
+    cursor: pointer;
+    color: #ffffff;
+    margin-left: 40px;
+    margin-top: 0;
+
+}
+.cuepoint:hover, .cuepoint.active  {
+  color: rgb(251, 255, 21);
+}
+
+/* .bookmark img:last-child{display:none;} 
+.bookmark:hover img:first-child{display:none;} 
+.bookmark:hover img:last-child{display:inline-block;}
+ */
+#bookmark {
+  cursor: pointer;
+  background-color:transparent;
+  position: absolute;
+
+  width: 20px;
+  background-color:transparent;
+  border: none;
+  
+}
+.size{
+ z-index: 3;
+ cursor: pointer;
+ width:40px;
+ top:2px;
+ left :72.5%;
+ position: relative;
+}
